@@ -22,7 +22,9 @@ export const GLOBAL_COOKIE_OPTIONS: CookieOptions = {
   path: "/",
 };
 
-export const getCookieOptions = (options: CookieOptions = {}): CookieOptions => {
+export const getCookieOptions = (
+  options: CookieOptions = {},
+): CookieOptions => {
   return {
     ...GLOBAL_COOKIE_OPTIONS,
     ...options,
