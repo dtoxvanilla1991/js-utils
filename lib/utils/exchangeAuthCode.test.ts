@@ -6,19 +6,12 @@ import {
   clearActiveStorage,
   clearInsecureStorage,
 } from "./token";
+import createFetchMock from "vitest-fetch-mock";
 import { frameworkSettings } from "./exchangeAuthCode";
 import * as refreshTokenTimer from "./refreshTimer";
 import * as main from "../main";
 
-const fetchMock = vi.fn<typeof fetch>();
-
-const jsonResponse = (data: unknown, init?: ResponseInit) =>
-  new Response(JSON.stringify(data), {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    ...init,
-  });
+const fetchMock = createFetchMock(vi);
 
 describe("exchangeAuthCode", () => {
   const mockStorage = {
@@ -33,8 +26,7 @@ describe("exchangeAuthCode", () => {
   };
 
   beforeEach(() => {
-    fetchMock.mockReset();
-    vi.stubGlobal("fetch", fetchMock);
+    fetchMock.enableMocks();
     vi.spyOn(refreshTokenTimer, "setRefreshTimer");
     vi.spyOn(main, "refreshToken");
     vi.useFakeTimers();
@@ -43,8 +35,7 @@ describe("exchangeAuthCode", () => {
   });
 
   afterEach(() => {
-    vi.unstubAllGlobals();
-    vi.restoreAllMocks();
+    fetchMock.resetMocks();
     vi.useRealTimers();
   });
 
@@ -143,8 +134,8 @@ describe("exchangeAuthCode", () => {
     urlParams.append("state", state);
     urlParams.append("client_id", "test");
 
-    fetchMock.mockResolvedValueOnce(
-      jsonResponse({
+    fetchMock.mockResponseOnce(
+      JSON.stringify({
         access_token: "access_token",
         refresh_token: "refresh_token",
         id_token: "id_token",
@@ -200,8 +191,8 @@ describe("exchangeAuthCode", () => {
     urlParams.append("state", state);
     urlParams.append("client_id", "test");
 
-    fetchMock.mockResolvedValueOnce(
-      jsonResponse({
+    fetchMock.mockResponseOnce(
+      JSON.stringify({
         access_token: "access_token",
         refresh_token: "refresh_token",
         id_token: "id_token",
@@ -256,8 +247,8 @@ describe("exchangeAuthCode", () => {
     urlParams.append("state", state);
     urlParams.append("client_id", "test");
 
-    fetchMock.mockResolvedValueOnce(
-      jsonResponse({
+    fetchMock.mockResponseOnce(
+      JSON.stringify({
         access_token: "access_token",
         refresh_token: "refresh_token",
         id_token: "id_token",
@@ -301,12 +292,7 @@ describe("exchangeAuthCode", () => {
     urlParams.append("state", state);
     urlParams.append("client_id", "test");
 
-    fetchMock.mockResolvedValueOnce(
-      new Response("error", {
-        status: 500,
-        statusText: "Internal Server Error",
-      }),
-    );
+    fetchMock.mockOnce({ status: 500, ok: false, body: "error" });
 
     const result = await exchangeAuthCode({
       urlParams,
@@ -342,8 +328,8 @@ describe("exchangeAuthCode", () => {
     urlParams.append("state", state);
     urlParams.append("client_id", "test");
 
-    fetchMock.mockResolvedValueOnce(
-      jsonResponse({
+    fetchMock.mockResponseOnce(
+      JSON.stringify({
         access_token: "access_token",
         refresh_token: "refresh_token",
         id_token: "id_token",
@@ -458,7 +444,7 @@ describe("exchangeAuthCode", () => {
       if (key === StorageKeys.codeVerifier) return "verifier";
       return null;
     });
-    fetchMock.mockRejectedValueOnce(new Error("Fetch failed"));
+    fetchMock.mockRejectOnce(new Error("Fetch failed"));
 
     await expect(
       exchangeAuthCode({
@@ -486,7 +472,10 @@ describe("exchangeAuthCode", () => {
       if (key === StorageKeys.codeVerifier) return "verifier";
       return null;
     });
-    fetchMock.mockResolvedValueOnce(jsonResponse({}));
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({}),
+    } as Response);
 
     const result = await exchangeAuthCode({
       urlParams,
@@ -514,7 +503,10 @@ describe("exchangeAuthCode", () => {
       if (key === StorageKeys.codeVerifier) return "verifier";
       return null;
     });
-    fetchMock.mockResolvedValueOnce(jsonResponse({}));
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({}),
+    } as Response);
 
     await exchangeAuthCode({
       urlParams,
@@ -524,14 +516,14 @@ describe("exchangeAuthCode", () => {
       clientSecret: "secret",
     });
 
-    expect(fetchMock).toHaveBeenCalledWith(
+    expect(global.fetch).toHaveBeenCalledWith(
       "test.com/oauth2/token",
       expect.objectContaining({
         body: expect.any(URLSearchParams),
       }),
     );
 
-    const fetchCall = fetchMock.mock.calls[0];
+    const fetchCall = vi.mocked(global.fetch).mock.calls[0];
     const actualBody = fetchCall[1]?.body as URLSearchParams;
 
     expect(actualBody.get("client_id")).toBe("test");
@@ -560,13 +552,15 @@ describe("exchangeAuthCode", () => {
       return null;
     });
 
-    fetchMock.mockResolvedValue(
-      jsonResponse({
-        access_token: "access",
-        id_token: "id",
-        refresh_token: "refresh",
-      }),
-    );
+    vi.mocked(global.fetch).mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          access_token: "access",
+          id_token: "id",
+          refresh_token: "refresh",
+        }),
+    } as Response);
 
     const result = await exchangeAuthCode({
       urlParams,
@@ -597,8 +591,8 @@ describe("exchangeAuthCode", () => {
     urlParams.append("state", "state");
     urlParams.append("client_id", "test");
 
-    fetchMock.mockResolvedValueOnce(
-      jsonResponse({
+    fetchMock.mockResponseOnce(
+      JSON.stringify({
         access_token: "access_token",
         refresh_token: "refresh_token",
         id_token: "id_token",
