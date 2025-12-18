@@ -597,8 +597,8 @@ describe("exchangeAuthCode", () => {
     urlParams.append("state", "state");
     urlParams.append("client_id", "test");
 
-    fetchMock.mockResponseOnce(
-      JSON.stringify({
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
         access_token: "access_token",
         refresh_token: "refresh_token",
         id_token: "id_token",
