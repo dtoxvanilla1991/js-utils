@@ -30,18 +30,29 @@ export type { CookieEnv, CookieOptions, CookieOptionValue } from "./utils";
 
 export {
   getClaim,
+  getClaimSync,
   getClaims,
+  getClaimsSync,
   getCurrentOrganization,
+  getCurrentOrganizationSync,
   getRawToken,
+  getRawTokenSync,
   getDecodedToken,
+  getDecodedTokenSync,
   getFlag,
+  getFlagSync,
   getUserProfile,
+  getUserProfileSync,
   getPermission,
+  getPermissionSync,
   getEntitlement,
   getEntitlements,
   getPermissions,
+  getPermissionsSync,
   getUserOrganizations,
+  getUserOrganizationsSync,
   getRoles,
+  getRolesSync,
   isAuthenticated,
   isTokenExpired,
   refreshToken,
@@ -74,6 +85,7 @@ export {
   LocalStorage,
   StorageKeys,
   SessionBase,
+  TimeoutActivityType,
 } from "./sessionManager";
 
 // This export provides an implementation of SessionManager<V>
@@ -92,4 +104,4 @@ export const ExpoSecureStore: {
   },
 };
 
-export type { SessionManager } from "./sessionManager";
+export type { SessionManager, TimeoutTokenData } from "./sessionManager";
