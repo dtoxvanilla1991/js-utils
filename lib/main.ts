@@ -26,7 +26,7 @@ export {
   isServer,
   getCookieOptions,
 } from "./utils";
-export type { CookieOptions, CookieOptionValue } from "./utils";
+export type { CookieOptions } from "./utils";
 
 export {
   getClaim,

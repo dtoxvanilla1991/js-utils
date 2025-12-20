@@ -3,9 +3,9 @@ import { describe, it, expect } from "vitest";
 import {
   getCookieOptions,
   TWENTY_NINE_DAYS,
-  MAX_COOKIE_LENGTH,
   GLOBAL_COOKIE_OPTIONS,
 } from "./getCookieOptions";
+import { storageSettings } from "../sessionManager/index";
 
 describe("getCookieOptions", () => {
   it("returns the default configuration when no options provided", () => {
@@ -13,7 +13,7 @@ describe("getCookieOptions", () => {
 
     expect(result).toMatchObject({
       maxAge: TWENTY_NINE_DAYS,
-      maxCookieLength: MAX_COOKIE_LENGTH,
+      maxCookieLength: storageSettings.maxLength,
       sameSite: "lax",
       httpOnly: true,
       path: "/",
@@ -27,7 +27,6 @@ describe("getCookieOptions", () => {
       path: "/custom",
       maxAge: 60,
       domain: "example.com",
-      customOption: "value",
     });
 
     expect(result.secure).toBe(true);
@@ -35,7 +34,6 @@ describe("getCookieOptions", () => {
     expect(result.path).toBe("/custom");
     expect(result.maxAge).toBe(60);
     expect(result.domain).toBe("example.com");
-    expect(result.customOption).toBe("value");
   });
 
   it("preserves GLOBAL_COOKIE_OPTIONS when not overridden", () => {
@@ -61,16 +59,6 @@ describe("getCookieOptions", () => {
     expect(result.sameSite).toBe("lax");
     expect(result.path).toBe("/");
   });
-
-  it("supports custom passthrough options", () => {
-    const result = getCookieOptions({
-      customFlag: true,
-      anotherOption: "test",
-    });
-
-    expect(result.customFlag).toBe(true);
-    expect(result.anotherOption).toBe("test");
-  });
 });
 
 describe("GLOBAL_COOKIE_OPTIONS", () => {
@@ -79,6 +67,8 @@ describe("GLOBAL_COOKIE_OPTIONS", () => {
     expect(GLOBAL_COOKIE_OPTIONS.sameSite).toBe("lax");
     expect(GLOBAL_COOKIE_OPTIONS.path).toBe("/");
     expect(GLOBAL_COOKIE_OPTIONS.maxAge).toBe(TWENTY_NINE_DAYS);
-    expect(GLOBAL_COOKIE_OPTIONS.maxCookieLength).toBe(MAX_COOKIE_LENGTH);
+    expect(GLOBAL_COOKIE_OPTIONS.maxCookieLength).toBe(
+      storageSettings.maxLength,
+    );
   });
 });

@@ -1,4 +1,4 @@
-export type CookieOptionValue = string | number | boolean | undefined;
+import { storageSettings } from "../sessionManager/index.js";
 
 export interface CookieOptions {
   maxAge?: number;
@@ -8,11 +8,9 @@ export interface CookieOptions {
   httpOnly?: boolean;
   secure?: boolean;
   path?: string;
-  [key: string]: CookieOptionValue;
 }
 
 export const TWENTY_NINE_DAYS = 2505600;
-export const MAX_COOKIE_LENGTH = 3000;
 
 /**
  * Default cookie options used across Kinde SDKs.
@@ -27,7 +25,7 @@ export const MAX_COOKIE_LENGTH = 3000;
  */
 export const GLOBAL_COOKIE_OPTIONS: CookieOptions = {
   maxAge: TWENTY_NINE_DAYS,
-  maxCookieLength: MAX_COOKIE_LENGTH,
+  maxCookieLength: storageSettings.maxLength,
   sameSite: "lax",
   httpOnly: true,
   path: "/",
